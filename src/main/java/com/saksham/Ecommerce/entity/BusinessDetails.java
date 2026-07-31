@@ -1,0 +1,18 @@
+package com.saksham.Ecommerce.entity;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class BusinessDetails {
+
+    private String accountNumber;
+    private String accountHolderName;
+    private String bankName;
+    private String IfscCode;
+
+
+}
