@@ -3,6 +3,7 @@ package com.saksham.Ecommerce.controller;
 import com.saksham.Ecommerce.domain.UserRole;
 import com.saksham.Ecommerce.entity.VerificationCode;
 import com.saksham.Ecommerce.repository.UserRepository;
+import com.saksham.Ecommerce.request.LoginRequest;
 import com.saksham.Ecommerce.response.ApiResponse;
 import com.saksham.Ecommerce.response.AuthResponse;
 import com.saksham.Ecommerce.response.SignupRequest;
@@ -49,5 +50,13 @@ public class AuthController {
         System.out.println("exiting Controller ");
 
         return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
+    @PostMapping("/login") //change in api
+    public ResponseEntity<AuthResponse> loginHandler(@RequestBody LoginRequest req) throws Exception {
+
+        AuthResponse authResponse = authService.signing(req);
+
+        return new ResponseEntity<>(authResponse, HttpStatus.OK);
     }
 }
