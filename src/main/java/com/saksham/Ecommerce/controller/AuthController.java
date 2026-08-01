@@ -1,8 +1,9 @@
 package com.saksham.Ecommerce.controller;
 
 import com.saksham.Ecommerce.domain.UserRole;
-import com.saksham.Ecommerce.entity.User;
+import com.saksham.Ecommerce.entity.VerificationCode;
 import com.saksham.Ecommerce.repository.UserRepository;
+import com.saksham.Ecommerce.response.ApiResponse;
 import com.saksham.Ecommerce.response.AuthResponse;
 import com.saksham.Ecommerce.response.SignupRequest;
 import com.saksham.Ecommerce.service.AuthService;
@@ -23,7 +24,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/signup")
-    public ResponseEntity<AuthResponse> createUserHandler(@RequestBody SignupRequest req) {
+    public ResponseEntity<AuthResponse> createUserHandler(@RequestBody SignupRequest req) throws Exception {
 
         String jwt = authService.createUser(req);
 
@@ -36,4 +37,17 @@ public class AuthController {
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
+    @PostMapping("/send-otp") //change in api
+    public ResponseEntity<ApiResponse> sendOtpHandler(@RequestBody VerificationCode req) throws Exception {
+
+        System.out.println("inside Controller ");
+        authService.sendLoginAndSignupOtp(req.getEmail());
+
+        ApiResponse res = new ApiResponse();
+
+        res.setMessage("sent otp successfully on -" + req.getEmail());
+        System.out.println("exiting Controller ");
+
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
 }

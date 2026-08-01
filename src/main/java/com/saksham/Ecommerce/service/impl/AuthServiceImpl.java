@@ -4,10 +4,14 @@ import com.saksham.Ecommerce.config.JwtProvider;
 import com.saksham.Ecommerce.domain.UserRole;
 import com.saksham.Ecommerce.entity.Cart;
 import com.saksham.Ecommerce.entity.User;
+import com.saksham.Ecommerce.entity.VerificationCode;
 import com.saksham.Ecommerce.repository.CartRepository;
 import com.saksham.Ecommerce.repository.UserRepository;
+import com.saksham.Ecommerce.repository.VerificationCodeRepository;
 import com.saksham.Ecommerce.response.SignupRequest;
 import com.saksham.Ecommerce.service.AuthService;
+import com.saksham.Ecommerce.service.EmailService;
+import com.saksham.Ecommerce.utils.OtpUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -28,9 +32,63 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final CartRepository cartRepository;
     private final JwtProvider jwtProvider;
+    private final VerificationCodeRepository verificationCodeRepository;
+    private final EmailService emailService;
 
     @Override
-    public String createUser(SignupRequest request) {
+    public void sendLoginAndSignupOtp(String email) throws Exception {
+        System.out.println("inside Sign login OTP method ");
+
+        String SIGNING_PREFIX = "signing_";
+        if (email.startsWith(SIGNING_PREFIX)) {
+            System.out.println("inside if condition ");
+            email = email.substring(SIGNING_PREFIX.length());
+            System.out.println("email " + email);
+            User user = userRepository.findByEmail(email);
+
+            if(user == null){
+                throw new Exception("user not exist with Email");
+            }
+            System.out.println("at middle ");
+        }
+
+        VerificationCode isExist = verificationCodeRepository.findByEmail(email);
+        if(isExist != null){
+            verificationCodeRepository.delete(isExist); // if the one code exist then delete that code and create new one
+        }
+
+        //creating new verification code (OPT Util class)
+        String otp = OtpUtil.generateOtp();
+        VerificationCode verificationCode = new VerificationCode();
+        verificationCode.setOtp(otp);
+        verificationCode.setEmail(email);
+
+        verificationCodeRepository.save(verificationCode);
+
+        //sending email with otp to user
+        String subject = "E-commerce login OTP";
+        String text = "your login OTP is - " +otp;
+
+        System.out.println("inside Send Login OTP method ");
+
+        emailService.sendVerificationOtpEmail(email, otp, subject, text);
+
+        System.out.println("exiting Sign login OTP method ");
+        System.out.println("exiting Sign login OTP method ");
+    }
+
+    @Override
+    public String createUser(SignupRequest request) throws Exception {
+
+        VerificationCode verificationCode = verificationCodeRepository.findByEmail(request.getEmail());
+        // if verification code is present in the DB with the matching mail id then we will move forward if not then we
+        // will throw error.
+
+        if(verificationCode == null || !verificationCode.getOtp().equals(request.getOtp())) {
+            throw new Exception("wrong otp");
+        }
+
+
         // check user is existed with the email
         User user = userRepository.findByEmail(request.getEmail());
         if (user == null) {
