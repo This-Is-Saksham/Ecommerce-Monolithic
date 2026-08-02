@@ -5,6 +5,7 @@ import com.saksham.Ecommerce.entity.Seller;
 import com.saksham.Ecommerce.entity.User;
 import com.saksham.Ecommerce.repository.SellerRepository;
 import com.saksham.Ecommerce.repository.UserRepository;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -22,6 +23,7 @@ public class CustomUserServiceImpl implements UserDetailsService {
     private final SellerRepository sellerRepository;
     // seller prefix because if email or username comes with seller then we need to check in seller table else we can check in user table
     private static final String SELLER_PREFIX = "seller_";
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         if (username.startsWith(SELLER_PREFIX)) {
@@ -36,7 +38,6 @@ public class CustomUserServiceImpl implements UserDetailsService {
             if(user != null) {
                 return buildUserDetails(user.getEmail(), user.getPassword(), user.getRole());
             }
-
         }
         throw new UsernameNotFoundException("user not found with this email - " +username);
     }
