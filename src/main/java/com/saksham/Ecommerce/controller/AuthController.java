@@ -3,6 +3,7 @@ package com.saksham.Ecommerce.controller;
 import com.saksham.Ecommerce.domain.UserRole;
 import com.saksham.Ecommerce.entity.VerificationCode;
 import com.saksham.Ecommerce.repository.UserRepository;
+import com.saksham.Ecommerce.request.LoginOtpRequest;
 import com.saksham.Ecommerce.request.LoginRequest;
 import com.saksham.Ecommerce.response.ApiResponse;
 import com.saksham.Ecommerce.response.AuthResponse;
@@ -39,10 +40,10 @@ public class AuthController {
     }
 
     @PostMapping("/send-otp") //change in api
-    public ResponseEntity<ApiResponse> sendOtpHandler(@RequestBody VerificationCode req) throws Exception {
+    public ResponseEntity<ApiResponse> sendOtpHandler(@RequestBody LoginOtpRequest req) throws Exception {
 
         System.out.println("inside Controller ");
-        authService.sendLoginAndSignupOtp(req.getEmail());
+        authService.sendLoginAndSignupOtp(req.getEmail(), req.getRole());
 
         ApiResponse res = new ApiResponse();
 

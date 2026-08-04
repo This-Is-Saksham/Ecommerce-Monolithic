@@ -3,9 +3,11 @@ package com.saksham.Ecommerce.service.impl;
 import com.saksham.Ecommerce.config.JwtProvider;
 import com.saksham.Ecommerce.domain.UserRole;
 import com.saksham.Ecommerce.entity.Cart;
+import com.saksham.Ecommerce.entity.Seller;
 import com.saksham.Ecommerce.entity.User;
 import com.saksham.Ecommerce.entity.VerificationCode;
 import com.saksham.Ecommerce.repository.CartRepository;
+import com.saksham.Ecommerce.repository.SellerRepository;
 import com.saksham.Ecommerce.repository.UserRepository;
 import com.saksham.Ecommerce.repository.VerificationCodeRepository;
 import com.saksham.Ecommerce.request.LoginRequest;
@@ -41,23 +43,35 @@ public class AuthServiceImpl implements AuthService {
     private final VerificationCodeRepository verificationCodeRepository;
     private final EmailService emailService;
     private final CustomUserServiceImpl customUserService;
+    private final SellerRepository sellerRepository;
 
 
     @Override
-    public void sendLoginAndSignupOtp(String email) throws Exception {
-        System.out.println("inside Sign login OTP method ");
+    public void sendLoginAndSignupOtp(String email, UserRole role) throws Exception {
 
         String SIGNING_PREFIX = "signing_";
-        if (email.startsWith(SIGNING_PREFIX)) {
-            System.out.println("inside if condition ");
-            email = email.substring(SIGNING_PREFIX.length());
-            System.out.println("email " + email);
-            User user = userRepository.findByEmail(email);
+        String SELLER_PREFIX = "seller_";
 
-            if(user == null){
-                throw new Exception("user not exist with Email");
+
+        if (email.startsWith(SIGNING_PREFIX)) {
+
+            email = email.substring(SIGNING_PREFIX.length());
+
+            if (role.equals(UserRole.ROLE_SELLER)) {
+                Seller seller = sellerRepository.findByEmail(email);
+                if(seller == null){
+                    throw new Exception("seller not exist with Email");
+                }
+
+
+            }else {
+                User user = userRepository.findByEmail(email);
+                if(user == null){
+                    throw new Exception("user not exist with Email");
+                }
             }
-            System.out.println("at middle ");
+
+
         }
 
         VerificationCode isExist = verificationCodeRepository.findByEmail(email);
@@ -145,9 +159,16 @@ public class AuthServiceImpl implements AuthService {
     private Authentication authentication(String username, String otp) {
         UserDetails userDetails = customUserService.loadUserByUsername(username);
 
+        String SELLER_PREFIX = "seller_";
+        if (username.startsWith(SELLER_PREFIX)) {
+            username =  username.substring(SELLER_PREFIX.length());
+        }
+
+
         if(userDetails == null){
             throw new BadCredentialsException("Invalid username");
         }
+
 
         // checking verification code present in DB
         VerificationCode verificationCode = verificationCodeRepository.findByEmail(username);

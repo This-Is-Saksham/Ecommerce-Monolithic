@@ -9,10 +9,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class BusinessDetails {
 
-    private String accountNumber;
-    private String accountHolderName;
-    private String bankName;
-    private String IfscCode;
-
+    private String businessName;
+    private String businessEmail;
+    private String businessMobile;
+    private String businessAddress;
+    private String logo;
+    private String banner;
 
 }
