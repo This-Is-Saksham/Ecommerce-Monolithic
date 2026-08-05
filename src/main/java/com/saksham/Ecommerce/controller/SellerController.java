@@ -5,6 +5,7 @@ import com.saksham.Ecommerce.domain.AccountStatus;
 import com.saksham.Ecommerce.entity.Seller;
 import com.saksham.Ecommerce.entity.SellerReports;
 import com.saksham.Ecommerce.entity.VerificationCode;
+import com.saksham.Ecommerce.exception.SellerException;
 import com.saksham.Ecommerce.repository.VerificationCodeRepository;
 import com.saksham.Ecommerce.request.LoginRequest;
 import com.saksham.Ecommerce.response.ApiResponse;
@@ -74,7 +75,7 @@ public class SellerController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<Seller> getSellerById(@PathVariable Long id) throws Exception{
+    public ResponseEntity<Seller> getSellerById(@PathVariable Long id) throws SellerException {
         Seller seller = sellerService.getSellerById(id);
         return new ResponseEntity<>(seller, HttpStatus.OK);
     }
